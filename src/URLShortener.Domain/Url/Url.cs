@@ -29,6 +29,16 @@ public class Url : FullAuditedAggregateRoot<Guid>
         {
             throw new BusinessException("Url is not valid");
         }
+        if (DateTime.Now > expireDate.AddSeconds(60))
+        {
+            if (expireDate == DateTime.MinValue)
+            {
+                expireDate = DateTime.Now.Add(TimeConstants.TimeConstants.DefaultAddDays);
+            }else
+            {
+                throw new BusinessException("Invalid Expiration Date time");
+            }
+        }    
         
         OriginalUrl = originalUrl;
         ShortenedUrl = shortenedUrl;

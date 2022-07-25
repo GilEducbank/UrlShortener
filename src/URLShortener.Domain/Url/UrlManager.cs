@@ -16,10 +16,10 @@ public class UrlManager : DomainService
         _urlRepository = urlRepository;
     }
 
-    public Url Create(string originalUrl, string shortenedUrl,DateTime expirationDateTime)
+    private Url Create(string originalUrl, string shortenedUrl,DateTime expireDate)
     {
         var id = GuidGenerator.Create();
-        var url = new Url(id, originalUrl, shortenedUrl, expirationDateTime);
+        var url = new Url(id, originalUrl, shortenedUrl, expireDate);
         return url;
     }
 
@@ -30,7 +30,7 @@ public class UrlManager : DomainService
         return url;
     }
 
-    public async Task<Url> CreatePremium(string originalUrl, string shortenedUrl, DateTime expirationDateTime)
+    public async Task<Url> CreatePremium(string originalUrl, string shortenedUrl, DateTime expireDate)
     {
 
         if (await _urlRepository.AnyAsync(item => item.ShortenedUrl == shortenedUrl))
@@ -38,12 +38,7 @@ public class UrlManager : DomainService
             throw new BusinessException("ShortenedUrl already exists");
         }
 
-        if (DateTime.Now > expirationDateTime)
-        {
-            throw new BusinessException("Invalid Expiration Date time");
-        }
-
-        var url = Create(originalUrl, shortenedUrl, expirationDateTime);
+        var url = Create(originalUrl, shortenedUrl, expireDate);
         return url;
     }
 

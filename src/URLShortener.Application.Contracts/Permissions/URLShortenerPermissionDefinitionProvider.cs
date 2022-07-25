@@ -4,11 +4,13 @@ using Volo.Abp.Localization;
 
 namespace URLShortener.Permissions;
 
-public class URLShortenerPermissionDefinitionProvider : PermissionDefinitionProvider
+public class UrlShortenerPermissionDefinitionProvider : PermissionDefinitionProvider
 {
     public override void Define(IPermissionDefinitionContext context)
     {
-        var myGroup = context.AddGroup(URLShortenerPermissions.GroupName);
+        var myGroup = context.AddGroup(UrlShortenerPermissions.GroupName);
+        myGroup.AddPermission(UrlShortenerPermissions.CreateUrl, 
+                L("Permission:Create"));
         //Define your own permissions here. Example:
         //myGroup.AddPermission(URLShortenerPermissions.MyPermission1, L("Permission:MyPermission1"));
     }

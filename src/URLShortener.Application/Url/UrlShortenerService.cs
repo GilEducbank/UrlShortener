@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using MongoDB.Bson.Serialization.IdGenerators;
+using URLShortener.Permissions;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
@@ -34,10 +35,10 @@ public class UrlShortenerService : URLShortenerAppService, IUrlShortenerService
        return url.OriginalUrl;
    }
 
-    [Authorize]
-    public async Task<string> CreatePremiumAsync(string originalUrl, string shortenedUrl, DateTime expirationDateTime)
+    [Authorize(UrlShortenerPermissions.CreateUrl)]
+    public async Task<string> CreatePremiumAsync(string originalUrl, string shortenedUrl, DateTime expireDate)
     {
-        var url = await _urlManager.CreatePremium(originalUrl, shortenedUrl, expirationDateTime);
+        var url = await _urlManager.CreatePremium(originalUrl, shortenedUrl, expireDate);
         await _urlRepository.InsertAsync(url);
         return url.ShortenedUrl;
     }
