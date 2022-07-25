@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using URLShortener.ServiceResponse;
 using Volo.Abp.Application.Services;
@@ -8,4 +9,5 @@ public interface IUrlShortenerService : IApplicationService
 {
     Task<string> CreateAsync(string originalUrl);
     Task<string> GetAsync(string shortUrl);
+    Task<string> CreatePremiumAsync(string originalUrl, string shortUrl, DateTime expirationDateTime);
 }

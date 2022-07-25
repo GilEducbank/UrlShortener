@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using MongoDB.Bson.Serialization.IdGenerators;
 using Volo.Abp;
@@ -13,53 +14,33 @@ namespace URLShortener.Url;
 public class UrlShortenerService : URLShortenerAppService, IUrlShortenerService
 {
     private readonly IRepository<Url, Guid> _urlRepository;
-
-    public UrlShortenerService(IRepository<Url, Guid> urlRepository)
+    private readonly UrlManager _urlManager;
+    public UrlShortenerService(IRepository<Url, Guid> urlRepository, UrlManager urlManager)
     {
         _urlRepository = urlRepository;
+        _urlManager = urlManager;
     }
     
     public async Task<string> CreateAsync(string originalUrl)
     {
-        Guid id = new Guid();
-        string shortenedUrl = GenerateRandomString();
-
-        while (await _urlRepository.AnyAsync(item => item.ShortenedUrl == shortenedUrl))
-        {
-            shortenedUrl = GenerateRandomString();
-        }
-        Url url = new Url(id, originalUrl, shortenedUrl, DateTime.Now.Add(TimeConstants.TimeConstants.DefaultAddDays));
-
+        var url = await _urlManager.CreateRandom(originalUrl);
         await _urlRepository.InsertAsync(url);
-        
-        return shortenedUrl;
+        return url.ShortenedUrl;
     }
 
-    private string GenerateRandomString()
+   public async Task<string> GetAsync(string shortenedUrl)
+   {
+       var url = await _urlManager.Get(shortenedUrl);
+       return url.OriginalUrl;
+   }
+
+    [Authorize]
+    public async Task<string> CreatePremiumAsync(string originalUrl, string shortenedUrl, DateTime expirationDateTime)
     {
-        string keys = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890+-";
-        StringBuilder str = new StringBuilder();
-        int length = new Random().Next(5, 11);
-
-        for (int i = 0; i < length; i++)
-        {
-            int index = new Random().Next(0, keys.Length + 1);
-            str.Append(keys[index]);
-        }
-        
-        return str.ToString();
+        var url = await _urlManager.CreatePremium(originalUrl, shortenedUrl, expirationDateTime);
+        await _urlRepository.InsertAsync(url);
+        return url.ShortenedUrl;
     }
 
-    
-    public async Task<string> GetAsync(string shortUrl)
-    {
-        var url = await _urlRepository.FirstOrDefaultAsync(c => c.ShortenedUrl == shortUrl);
 
-        if (url == null)
-        {
-            throw new BusinessException("Url not found");
-        }
-
-        return url.OriginalUrl;
-    }
 }

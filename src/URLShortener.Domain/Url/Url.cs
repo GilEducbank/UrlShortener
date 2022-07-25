@@ -12,7 +12,7 @@ public class Url : FullAuditedAggregateRoot<Guid>
     public string OriginalUrl { get; private set; }
     [Required]
     public string ShortenedUrl { get; private set; }
-    public DateTime ExpireDate { get; set; }
+    public DateTime ExpireDate { get; private set; }
 
     protected Url()
     {
