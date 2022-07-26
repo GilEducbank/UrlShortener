@@ -35,7 +35,12 @@ public class UrlManager : DomainService
 
         if (await _urlRepository.AnyAsync(item => item.ShortenedUrl == shortenedUrl))
         {
-            throw new BusinessException("ShortenedUrl already exists");
+            throw new BusinessException("Shortened Url already exists");
+        }
+
+        if (shortenedUrl.Length > 10)
+        {
+            throw new BusinessException("Shortened Url length cannot be greater than 10");
         }
 
         var url = Create(originalUrl, shortenedUrl, expireDate);

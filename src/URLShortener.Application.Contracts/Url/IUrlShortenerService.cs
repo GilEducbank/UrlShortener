@@ -9,5 +9,5 @@ public interface IUrlShortenerService : IApplicationService
 {
     Task<string> CreateAsync(string originalUrl);
     Task<string> GetAsync(string shortUrl);
-    Task<string> CreatePremiumAsync(string originalUrl, string shortUrl, DateTime expirationDateTime);
+    Task<string> CreatePremiumAsync(UrlCreateDto input);
 }

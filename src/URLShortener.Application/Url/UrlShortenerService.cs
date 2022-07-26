@@ -36,9 +36,9 @@ public class UrlShortenerService : URLShortenerAppService, IUrlShortenerService
    }
 
     [Authorize(UrlShortenerPermissions.CreateUrl)]
-    public async Task<string> CreatePremiumAsync(string originalUrl, string shortenedUrl, DateTime expireDate)
+    public async Task<string> CreatePremiumAsync(UrlCreateDto input)
     {
-        var url = await _urlManager.CreatePremium(originalUrl, shortenedUrl, expireDate);
+        var url = await _urlManager.CreatePremium(input.OriginalUrl, input.ShortenedUrl, input.ExpireDate);
         await _urlRepository.InsertAsync(url);
         return url.ShortenedUrl;
     }
