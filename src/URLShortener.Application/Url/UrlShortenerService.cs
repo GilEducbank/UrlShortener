@@ -31,7 +31,12 @@ public class UrlShortenerService : URLShortenerAppService, IUrlShortenerService
 
    public async Task<string> GetAsync(string shortenedUrl)
    {
-       var url = await _urlManager.Get(shortenedUrl);
+       var url = await _urlRepository.FirstOrDefaultAsync(c => c.ShortenedUrl == shortenedUrl);
+       
+       if (url == null)
+       {
+           throw new BusinessException("Url not found");
+       }
        return url.OriginalUrl;
    }
 
@@ -42,6 +47,5 @@ public class UrlShortenerService : URLShortenerAppService, IUrlShortenerService
         await _urlRepository.InsertAsync(url);
         return url.ShortenedUrl;
     }
-
 
 }

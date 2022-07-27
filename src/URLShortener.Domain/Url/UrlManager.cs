@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp;
@@ -10,55 +11,34 @@ namespace URLShortener.Url;
 public class UrlManager : DomainService
 {
     private readonly IRepository<Url, Guid> _urlRepository;
-
     public UrlManager(IRepository<Url, Guid> urlRepository)
     {
         _urlRepository = urlRepository;
     }
 
-    private Url Create(string originalUrl, string shortenedUrl,DateTime expireDate)
+    public async Task<Url> CreatePremium(string originalUrl, string shortenedUrl, DateTime expireDate)
     {
-        var id = GuidGenerator.Create();
-        var url = new Url(id, originalUrl, shortenedUrl, expireDate);
+        if (await _urlRepository.AnyAsync(item => item.ShortenedUrl == shortenedUrl))
+        {
+            throw new BusinessException("Shortened Url already exists");
+        }
+        var url = Create(originalUrl, shortenedUrl, expireDate);
         return url;
     }
-
     public async Task<Url> CreateRandom(string originalUrl)
     {
         var shortenedUrl = GetRandomString();
         var url = Create(originalUrl, await shortenedUrl, DateTime.Now);
         return url;
     }
-
-    public async Task<Url> CreatePremium(string originalUrl, string shortenedUrl, DateTime expireDate)
-    {
-
-        if (await _urlRepository.AnyAsync(item => item.ShortenedUrl == shortenedUrl))
-        {
-            throw new BusinessException("Shortened Url already exists");
-        }
-
-        if (shortenedUrl.Length > 10)
-        {
-            throw new BusinessException("Shortened Url length cannot be greater than 10");
-        }
-
-        var url = Create(originalUrl, shortenedUrl, expireDate);
-        return url;
-    }
-
-    public async Task<Url> Get(string shortenedUrl)
-    {
-        var url = await _urlRepository.FirstOrDefaultAsync(c => c.ShortenedUrl == shortenedUrl);
-
-        if (url == null)
-        {
-            throw new BusinessException("Url not found");
-        }
-
-        return url;
-    }
     
+    //private Methods
+    private Url Create(string originalUrl, string shortenedUrl, DateTime expireDate)
+    {
+        var id = GuidGenerator.Create();
+        var url = new Url(id, originalUrl, shortenedUrl, expireDate);
+        return url;
+    }
     private async Task<string> GetRandomString()
     {
         var shortenedUrl = GenerateRandomString();

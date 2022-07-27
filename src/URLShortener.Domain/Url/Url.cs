@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities;
@@ -21,24 +22,24 @@ public class Url : FullAuditedAggregateRoot<Guid>
     public Url(Guid id, string originalUrl, string shortenedUrl,DateTime expireDate) : base(id)
     {
         if (originalUrl.IsNullOrEmpty())
-        {
             throw new BusinessException("Empty string is not allowed");
-        }
-        
-        if (!IsValidUrl((originalUrl)))
-        {
+
+        if (!IsValidUrl(originalUrl))
             throw new BusinessException("Url is not valid");
-        }
+        
         if (DateTime.Now > expireDate.AddSeconds(60))
         {
             if (expireDate == DateTime.MinValue)
-            {
                 expireDate = DateTime.Now.Add(TimeConstants.TimeConstants.DefaultAddDays);
-            }else
-            {
+            else
                 throw new BusinessException("Invalid Expiration Date time");
-            }
-        }    
+        }  
+        
+        if (shortenedUrl.Length > 10)
+            throw new BusinessException("Shortened Url length cannot be greater than 10");
+
+        if (HasInvalidCharacter(shortenedUrl))
+            throw new BusinessException("Shortened url has invalid characters");
         
         OriginalUrl = originalUrl;
         ShortenedUrl = shortenedUrl;
@@ -46,6 +47,9 @@ public class Url : FullAuditedAggregateRoot<Guid>
     }
     private static bool IsValidUrl(string urlString)
     {
+        if (HasInvalidCharacter(urlString))
+            return false;
+            
         if(!urlString.StartsWith("https://") && !urlString.StartsWith("http://") && urlString.Contains('.'))
         { 
                 urlString = "http://" + urlString;
@@ -57,5 +61,10 @@ public class Url : FullAuditedAggregateRoot<Guid>
                    || uri.Scheme == Uri.UriSchemeHttps
                    || uri.Scheme == Uri.UriSchemeFtp
                    || uri.Scheme == Uri.UriSchemeMailto);
+    }
+    private static bool HasInvalidCharacter(string shortenedUrl)
+    {
+        const string keys = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890+-$–_.+!*‘()";
+        return shortenedUrl.Any(c => !keys.Contains(c));
     }
 }
