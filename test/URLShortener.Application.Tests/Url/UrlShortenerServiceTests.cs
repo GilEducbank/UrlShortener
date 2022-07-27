@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization.IdGenerators;
 using Shouldly;
+using Volo.Abp;
 using Xunit;
 
 namespace URLShortener.Url;
@@ -10,18 +11,16 @@ namespace URLShortener.Url;
 public sealed class UrlShortenerServiceTests : URLShortenerApplicationTestBase
 {
     private readonly IUrlShortenerService _urlShortenerService;
-    private readonly UrlManager _urlManager;
 
     public UrlShortenerServiceTests()
     {
         _urlShortenerService = GetRequiredService<IUrlShortenerService>();
-        _urlManager = GetRequiredService<UrlManager>();
     }
    
     [Fact]
     public async Task ShouldNotBeEmptyUrl()
     {
-        var result = await _urlShortenerService.CreateAsync("www.educbank.com.br");
+        var result = await _urlShortenerService.CreateAsync(randomUrl);
 
         result.ShouldNotBeNullOrEmpty();
         result.ShouldNotBeNullOrWhiteSpace();
@@ -59,4 +58,17 @@ public sealed class UrlShortenerServiceTests : URLShortenerApplicationTestBase
         result.ShouldNotBeNull();
         result.ShouldBe("www.educbank.com.br");
     }
+
+    [Fact]
+    public async Task ShouldNotGetNonExistingUrl()
+    {
+        var exception = await Assert.ThrowsAsync<BusinessException>(async () =>
+        {
+            await _urlShortenerService.GetAsync(randomShortenedUrl);
+        });
+    }
+    
+    //private methods
+    private const string randomUrl = "www.educbank.com.br";
+    private const string randomShortenedUrl = "Educbank";
 }
