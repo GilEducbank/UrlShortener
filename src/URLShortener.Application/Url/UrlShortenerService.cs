@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.Serialization.IdGenerators;
 using URLShortener.Permissions;
 using Volo.Abp;
@@ -31,6 +32,7 @@ public class UrlShortenerService : URLShortenerAppService, IUrlShortenerService
         return url.ShortenedUrl;
     }
 
+    [HttpGet("{shortenedUrl}")]
    public async Task<string> GetAsync(string shortenedUrl)
    {
        var url = await _urlRepository.FirstOrDefaultAsync(c => c.ShortenedUrl == shortenedUrl);
