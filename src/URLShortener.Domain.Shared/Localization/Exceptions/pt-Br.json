@@ -1,6 +1,12 @@
 {
   "culture": "pt-Br",
   "texts": {
-
+    "Exception:EmptyStringNotAllowed": "String vazia não é permitido",
+    "Exception:InvalidUrl": "Url inválida",
+    "Exception:InvalidExpirationDate": "Data de expiração inválida",
+    "Exception:ShortenedUrlLengthCannotBeGreaterThan10": "Url encurtada não pode ser maior que 10",
+    "Exception:ShortenedUrlHasInvalidChars": "Url encurtada contém caracteres inválidos",
+    "Exception:ShortenedUrlAlreadyExists": "Url encurtada já existe",
+    "Exception:UrlNotFound": "Url não foi encontrada"
   }
 }
