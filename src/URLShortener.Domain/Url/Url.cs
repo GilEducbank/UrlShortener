@@ -37,7 +37,7 @@ public sealed class Url : FullAuditedAggregateRoot<Guid>
         if (HasInvalidCharacter(shortenedUrl))
             throw new BusinessException("Shortened url has invalid characters");
         
-        AddLocalEvent(
+        AddDistributedEvent(
         
             new UrlCreateEto
             {

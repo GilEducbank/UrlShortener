@@ -3,10 +3,12 @@ using System.Threading.Tasks;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.EventBus;
+using Volo.Abp.EventBus.Distributed;
+using Volo.Abp.Uow;
 
 namespace URLShortener.Url;
 
-public class UrlCreatedHandler : ILocalEventHandler<UrlCreateEto>, ITransientDependency
+public class UrlCreatedHandler : IDistributedEventHandler<UrlCreateEto>, ITransientDependency
 {
     private readonly IRepository<Url, Guid> _urlRepository;
     
@@ -14,7 +16,8 @@ public class UrlCreatedHandler : ILocalEventHandler<UrlCreateEto>, ITransientDep
     {
         _urlRepository = urlRepository;
     }
-    public async Task HandleEventAsync(UrlCreateEto eventData)
+    [UnitOfWork]
+    public virtual async Task HandleEventAsync(UrlCreateEto eventData)
     {
         var url = await _urlRepository.FirstAsync(item => item.Id == eventData.UrlId);
         try

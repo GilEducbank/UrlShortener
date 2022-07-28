@@ -18,12 +18,10 @@ public class UrlShortenerService : URLShortenerAppService, IUrlShortenerService
 {
     private readonly IRepository<Url, Guid> _urlRepository;
     private readonly UrlManager _urlManager;
-    private readonly ILocalEventBus _localEventBus;
-    public UrlShortenerService(IRepository<Url, Guid> urlRepository, UrlManager urlManager, ILocalEventBus localEventBus)
+    public UrlShortenerService(IRepository<Url, Guid> urlRepository, UrlManager urlManager)
     {
         _urlRepository = urlRepository;
         _urlManager = urlManager;
-        _localEventBus = localEventBus;
     }
     
     public async Task<string> CreateAsync(string originalUrl)
