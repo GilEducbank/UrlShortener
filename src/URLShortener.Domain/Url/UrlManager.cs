@@ -15,7 +15,12 @@ public class UrlManager : DomainService
     {
         _urlRepository = urlRepository;
     }
-
+    public async Task<Url> CreateRandom(string originalUrl)
+    {
+        var shortenedUrl = GetRandomString();
+        var url = Create(originalUrl, await shortenedUrl, DateTime.Now.Add(TimeConstants.TimeConstants.DefaultAddDays));
+        return url;
+    }
     public async Task<Url> CreatePremium(string originalUrl, string shortenedUrl, DateTime expireDate)
     {
         if (await _urlRepository.AnyAsync(item => item.ShortenedUrl == shortenedUrl))
@@ -23,12 +28,6 @@ public class UrlManager : DomainService
             throw new BusinessException("Shortened Url already exists");
         }
         var url = Create(originalUrl, shortenedUrl, expireDate);
-        return url;
-    }
-    public async Task<Url> CreateRandom(string originalUrl)
-    {
-        var shortenedUrl = GetRandomString();
-        var url = Create(originalUrl, await shortenedUrl, DateTime.Now);
         return url;
     }
     
@@ -61,7 +60,6 @@ public class UrlManager : DomainService
             var index = new Random().Next(0, keys.Length + 1);
             str.Append(keys[index]);
         }
-        
         return str.ToString();
     }
 }

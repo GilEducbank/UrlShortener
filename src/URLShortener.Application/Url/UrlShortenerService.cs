@@ -7,6 +7,8 @@ using MongoDB.Bson.Serialization.IdGenerators;
 using URLShortener.Permissions;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.EventBus;
+using Volo.Abp.EventBus.Local;
 using Volo.Abp.Guids;
 
 namespace URLShortener.Url;
@@ -16,10 +18,12 @@ public class UrlShortenerService : URLShortenerAppService, IUrlShortenerService
 {
     private readonly IRepository<Url, Guid> _urlRepository;
     private readonly UrlManager _urlManager;
-    public UrlShortenerService(IRepository<Url, Guid> urlRepository, UrlManager urlManager)
+    private readonly ILocalEventBus _localEventBus;
+    public UrlShortenerService(IRepository<Url, Guid> urlRepository, UrlManager urlManager, ILocalEventBus localEventBus)
     {
         _urlRepository = urlRepository;
         _urlManager = urlManager;
+        _localEventBus = localEventBus;
     }
     
     public async Task<string> CreateAsync(string originalUrl)

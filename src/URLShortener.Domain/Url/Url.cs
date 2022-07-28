@@ -7,7 +7,7 @@ using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Entities.Auditing;
 namespace URLShortener.Url;
 
-public class Url : FullAuditedAggregateRoot<Guid>
+public sealed class Url : FullAuditedAggregateRoot<Guid>
 {
     [Required]
     public string OriginalUrl { get; private set; }
@@ -15,7 +15,7 @@ public class Url : FullAuditedAggregateRoot<Guid>
     public string ShortenedUrl { get; private set; }
     public DateTime ExpireDate { get; private set; }
 
-    protected Url()
+    private Url()
     {
         
     }
@@ -27,13 +27,9 @@ public class Url : FullAuditedAggregateRoot<Guid>
         if (!IsValidUrl(originalUrl))
             throw new BusinessException("Url is not valid");
         
-        if (DateTime.Now > expireDate.AddSeconds(60))
-        {
-            if (expireDate == DateTime.MinValue)
-                expireDate = DateTime.Now.Add(TimeConstants.TimeConstants.DefaultAddDays);
-            else
-                throw new BusinessException("Invalid Expiration Date time");
-        }  
+        if (expireDate.Date < DateTime.Now.Date)
+            throw new BusinessException("Invalid Expiration Date time");
+         
         
         if (shortenedUrl.Length > 10)
             throw new BusinessException("Shortened Url length cannot be greater than 10");
@@ -41,10 +37,19 @@ public class Url : FullAuditedAggregateRoot<Guid>
         if (HasInvalidCharacter(shortenedUrl))
             throw new BusinessException("Shortened url has invalid characters");
         
+        AddLocalEvent(
+        
+            new UrlCreateEto
+            {
+                UrlId = Id
+            }
+        );
         OriginalUrl = originalUrl;
         ShortenedUrl = shortenedUrl;
         ExpireDate = expireDate;
     }
+
+    //Private methods
     private static bool IsValidUrl(string urlString)
     {
         if (HasInvalidCharacter(urlString))
@@ -64,7 +69,7 @@ public class Url : FullAuditedAggregateRoot<Guid>
     }
     private static bool HasInvalidCharacter(string shortenedUrl)
     {
-        const string keys = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890+-$–_.+!*‘()";
-        return shortenedUrl.Any(c => !keys.Contains(c));
+        const string validKeys = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890+-$/–_.+!*‘()";
+        return shortenedUrl.Any(c => !validKeys.Contains(c));
     }
 }

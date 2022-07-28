@@ -23,7 +23,6 @@ public sealed class UrlShortenerServiceTests : URLShortenerApplicationTestBase
         var result = await _urlShortenerService.CreateAsync(randomUrl);
 
         result.ShouldNotBeNullOrEmpty();
-        result.ShouldNotBeNullOrWhiteSpace();
         result.Length.ShouldBeInRange(1, 10);
     }
     
@@ -39,7 +38,7 @@ public sealed class UrlShortenerServiceTests : URLShortenerApplicationTestBase
         });
 
         result.ShouldNotBeNullOrEmpty();
-        result.ShouldNotBeNullOrWhiteSpace();
+        result.ShouldBe("Educbank");
         result.Length.ShouldBeInRange(1, 10);
     }
 

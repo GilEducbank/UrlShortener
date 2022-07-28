@@ -6,7 +6,6 @@ using Volo.Abp.Domain.Repositories;
 using Xunit;
 
 namespace URLShortener.Url;
-
 public sealed class UrlShortenerManagerTests : URLShortenerDomainTestBase
 {
     private readonly UrlManager _urlManager;
@@ -16,27 +15,27 @@ public sealed class UrlShortenerManagerTests : URLShortenerDomainTestBase
         _urlManager = GetRequiredService<UrlManager>();
         _urlRepository = GetRequiredService<IRepository<Url, Guid>>();
     }
-    
     [Fact]
     public async Task ShouldCreateUrl()
     {
         var url = await _urlManager.CreateRandom(randomUrl);
-        url.Id.ShouldNotBe(Guid.Empty);
+        var validDate = DateTime.Now.Add(TimeConstants.TimeConstants.DefaultAddDays).Date;
         url.ShouldNotBeNull();
+        url.Id.ShouldNotBe(Guid.Empty);
         url.OriginalUrl.ShouldBe(randomUrl);
         url.ShortenedUrl.ShouldNotBeNullOrEmpty();
+        url.ExpireDate.Date.ShouldBe(validDate);
     }  
     [Fact]
     public async Task ShouldCreatePremiumUrl()
     {
         //Act
-
         var fake = await  CreateFakeUrl();
         var url = await _urlManager.CreatePremium(fake.OriginalUrl, fake.ShortenedUrl, fake.ExpireDate);
         
         //Assert
-        url.Id.ShouldNotBe(Guid.Empty);
         url.ShouldNotBeNull();
+        url.Id.ShouldNotBe(Guid.Empty);
         url.OriginalUrl.ShouldBe(fake.OriginalUrl);
         url.ShortenedUrl.ShouldBe(fake.ShortenedUrl);
         url.ExpireDate.ShouldBe(fake.ExpireDate);
