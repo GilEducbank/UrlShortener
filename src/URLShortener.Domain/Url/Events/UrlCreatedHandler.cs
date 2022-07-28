@@ -19,9 +19,10 @@ public class UrlCreatedHandler : IDistributedEventHandler<UrlCreateEto>, ITransi
     [UnitOfWork]
     public virtual async Task HandleEventAsync(UrlCreateEto eventData)
     {
-        var url = await _urlRepository.FirstAsync(item => item.Id == eventData.UrlId);
+        
         try
         {
+            var url = await _urlRepository.FirstAsync(item => item.Id == eventData.UrlId);
             Console.WriteLine($"A new Shortened Url was created: ");
             Console.WriteLine($"id = {url.Id}");
             Console.WriteLine($"Original Url = {url.OriginalUrl}");

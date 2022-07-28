@@ -22,31 +22,29 @@ public sealed class UrlShortenerServiceTests : URLShortenerApplicationTestBase
     {
         var result = await _urlShortenerService.CreateAsync(randomUrl);
 
-        result.ShouldNotBeNullOrEmpty();
-        result.Length.ShouldBeInRange(1, 10);
+        result.OriginalUrl.ShouldNotBeNullOrEmpty();
+        result.ShortenedUrl.Length.ShouldBeInRange(1, 10);
     }
     
     [Fact]
     public async Task ShouldNotBeEmptyPremiumUrl()
     {
         DateTime date = DateTime.Now.AddDays(30);
-        var result = await _urlShortenerService.CreatePremiumAsync(new UrlCreateDto()
+        var result = await _urlShortenerService.CreatePremiumAsync(new CreateUrlDto()
         {
             OriginalUrl = "www.educbank.com.br",
             ShortenedUrl = "Educbank",
             ExpireDate = date
         });
-
-        result.ShouldNotBeNullOrEmpty();
-        result.ShouldBe("Educbank");
-        result.Length.ShouldBeInRange(1, 10);
+        result.ShortenedUrl.ShouldBe("Educbank");
+        result.ShortenedUrl.Length.ShouldBeInRange(1, 10);
     }
 
     [Fact]
     public async Task ShouldGetUrl()
     {
         DateTime date = DateTime.Now.AddDays(30);
-        var url = await _urlShortenerService.CreatePremiumAsync(new UrlCreateDto()
+        var url = await _urlShortenerService.CreatePremiumAsync(new CreateUrlDto()
         {
             OriginalUrl = "www.educbank.com.br",
             ShortenedUrl = "Educbank",
@@ -55,7 +53,7 @@ public sealed class UrlShortenerServiceTests : URLShortenerApplicationTestBase
         var result = await _urlShortenerService.GetAsync("Educbank");
 
         result.ShouldNotBeNull();
-        result.ShouldBe("www.educbank.com.br");
+        result.OriginalUrl.ShouldBe("www.educbank.com.br");
     }
 
     [Fact]

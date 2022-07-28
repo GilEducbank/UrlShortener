@@ -7,7 +7,7 @@ namespace URLShortener.Url;
 
 public interface IUrlShortenerService : IApplicationService
 {
-    Task<string> CreateAsync(string originalUrl);
-    Task<string> GetAsync(string shortUrl);
-    Task<string> CreatePremiumAsync(UrlCreateDto input);
+    Task<CreateUrlDto> CreateAsync(string originalUrl);
+    Task<GetUrlDto> GetAsync(string shortUrl);
+    Task<CreateUrlDto> CreatePremiumAsync(CreateUrlDto input);
 }

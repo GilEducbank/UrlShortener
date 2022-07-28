@@ -1,0 +1,7 @@
+{
+  "culture": "en",
+  "texts": {
+    "Exception:EmptyStringNotAllowed": "Empty string is not allowed",
+    "Exception:InvalidUrl": "Url is not valid"
+  }
+}
