@@ -13,42 +13,27 @@ namespace URLShortener.Url;
 public class UrlManager : DomainService
 {
     private readonly IRepository<Url, Guid> _urlRepository;
-    private readonly IStringLocalizer<ExceptionResource> _exceptionLocalizer;
-    public UrlManager(IRepository<Url, Guid> urlRepository, IStringLocalizer<ExceptionResource> exceptionLocalizer)
+    public UrlManager(IRepository<Url, Guid> urlRepository)
     {
         _urlRepository = urlRepository;
-        _exceptionLocalizer = exceptionLocalizer;
     }
     public async Task<Url> CreateRandom(string originalUrl)
     {
         var shortenedUrl = GetRandomString();
-        try
-        {
-            var url = Create(originalUrl, await shortenedUrl,
+        var url = Create(originalUrl, await shortenedUrl,
                 DateTime.Now.Add(TimeConstants.TimeConstants.DefaultAddDays));
-            return url;
-        }
-        catch (Exception e)
-        {
-            throw new BusinessException(_exceptionLocalizer[e.Message]);
-        }
+        return url;
+
     }
     public async Task<Url> CreatePremium(string originalUrl, string shortenedUrl, DateTime expireDate)
     {
         if (await _urlRepository.AnyAsync(item => item.ShortenedUrl == shortenedUrl))
         {
-            throw new BusinessException(_exceptionLocalizer["Exception:ShortenedUrlAlreadyExists"]);
+            throw new BusinessException("Exception:ShortenedUrlAlreadyExists");
         }
+        var url = Create(originalUrl, shortenedUrl, expireDate);
+        return url;
 
-        try
-        {
-            var url = Create(originalUrl, shortenedUrl, expireDate);
-            return url;
-        }
-        catch(Exception e)
-        {
-            throw new BusinessException(_exceptionLocalizer[e.Message]);
-        }
     }
     
     //private Methods

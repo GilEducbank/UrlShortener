@@ -1,6 +1,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Bson.Serialization.IdGenerators;
 using Shouldly;
 using Volo.Abp;
@@ -11,10 +12,12 @@ namespace URLShortener.Url;
 public sealed class UrlShortenerServiceTests : URLShortenerApplicationTestBase
 {
     private readonly IUrlShortenerService _urlShortenerService;
+    private readonly IConfiguration _configuration;
 
     public UrlShortenerServiceTests()
     {
         _urlShortenerService = GetRequiredService<IUrlShortenerService>();
+        _configuration = GetRequiredService<IConfiguration>();
     }
    
     [Fact]
@@ -36,8 +39,9 @@ public sealed class UrlShortenerServiceTests : URLShortenerApplicationTestBase
             ShortenedUrl = "Educbank",
             ExpireDate = date
         });
-        result.ShortenedUrl.ShouldBe("Educbank");
-        result.ShortenedUrl.Length.ShouldBeInRange(1, 10);
+        result.ExpireDate.ShouldBe(date);
+        result.OriginalUrl.ShouldBe("www.educbank.com.br");
+        result.ShortenedUrl.ShouldBe(ConcatenateRootUrl("Educbank"));
     }
 
     [Fact]
@@ -68,4 +72,5 @@ public sealed class UrlShortenerServiceTests : URLShortenerApplicationTestBase
     //private methods
     private const string randomUrl = "www.educbank.com.br";
     private const string randomShortenedUrl = "Educbank";
+    private string ConcatenateRootUrl(string shortenedUrl) => _configuration["App:SelfUrl"] + '/' + shortenedUrl;
 }

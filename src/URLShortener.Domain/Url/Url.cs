@@ -26,20 +26,20 @@ public sealed class Url : FullAuditedAggregateRoot<Guid>
     {
 
         if (originalUrl.IsNullOrEmpty())
-            throw new Exception("Exception:EmptyStringNotAllowed");
+            throw new BusinessException("Exception:EmptyStringNotAllowed");
 
         if (!IsValidUrl(originalUrl))
-            throw new Exception("Exception:InvalidUrl");
+            throw new BusinessException("Exception:InvalidUrl");
         
         if (expireDate.Date < DateTime.Now.Date)
-            throw new Exception("Exception:InvalidExpirationDate");
+            throw new BusinessException("Exception:InvalidExpirationDate");
          
         
         if (shortenedUrl.Length > 10)
-            throw new Exception("Exception:ShortenedUrlLengthCannotBeGreaterThan10");
+            throw new BusinessException("Exception:ShortenedUrlLengthCannotBeGreaterThan10");
 
         if (HasInvalidCharacter(shortenedUrl))
-            throw new Exception("Exception:UrlNotFound");
+            throw new BusinessException("Exception:UrlNotFound");
         
         AddDistributedEvent(
         

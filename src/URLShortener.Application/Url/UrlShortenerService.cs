@@ -52,7 +52,7 @@ public class UrlShortenerService : URLShortenerAppService, IUrlShortenerService
        
        if (url == null)
        {
-           throw new BusinessException(_exceptionLocalizer["Exception:UrlNotFound"]);
+           throw new BusinessException("Exception:UrlNotFound");
        }
        
        return ObjectMapper.Map<Url, GetUrlDto>(url);
