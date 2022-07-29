@@ -2,9 +2,12 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.Extensions.Localization;
+using URLShortener.Localization;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Entities.Auditing;
+
 namespace URLShortener.Url;
 
 public sealed class Url : FullAuditedAggregateRoot<Guid>
@@ -21,21 +24,22 @@ public sealed class Url : FullAuditedAggregateRoot<Guid>
     }
     public Url(Guid id, string originalUrl, string shortenedUrl,DateTime expireDate) : base(id)
     {
+
         if (originalUrl.IsNullOrEmpty())
-            throw new BusinessException("Empty string is not allowed");
+            throw new Exception("Exception:EmptyStringNotAllowed");
 
         if (!IsValidUrl(originalUrl))
-            throw new BusinessException("Url is not valid");
+            throw new Exception("Exception:InvalidUrl");
         
         if (expireDate.Date < DateTime.Now.Date)
-            throw new BusinessException("Invalid Expiration Date time");
+            throw new Exception("Exception:InvalidExpirationDate");
          
         
         if (shortenedUrl.Length > 10)
-            throw new BusinessException("Shortened Url length cannot be greater than 10");
+            throw new Exception("Exception:ShortenedUrlLengthCannotBeGreaterThan10");
 
         if (HasInvalidCharacter(shortenedUrl))
-            throw new BusinessException("Shortened url has invalid characters");
+            throw new Exception("Exception:UrlNotFound");
         
         AddDistributedEvent(
         

@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
+using URLShortener.Localization;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
@@ -11,24 +13,42 @@ namespace URLShortener.Url;
 public class UrlManager : DomainService
 {
     private readonly IRepository<Url, Guid> _urlRepository;
-    public UrlManager(IRepository<Url, Guid> urlRepository)
+    private readonly IStringLocalizer<ExceptionResource> _exceptionLocalizer;
+    public UrlManager(IRepository<Url, Guid> urlRepository, IStringLocalizer<ExceptionResource> exceptionLocalizer)
     {
         _urlRepository = urlRepository;
+        _exceptionLocalizer = exceptionLocalizer;
     }
     public async Task<Url> CreateRandom(string originalUrl)
     {
         var shortenedUrl = GetRandomString();
-        var url = Create(originalUrl, await shortenedUrl, DateTime.Now.Add(TimeConstants.TimeConstants.DefaultAddDays));
-        return url;
+        try
+        {
+            var url = Create(originalUrl, await shortenedUrl,
+                DateTime.Now.Add(TimeConstants.TimeConstants.DefaultAddDays));
+            return url;
+        }
+        catch (Exception e)
+        {
+            throw new BusinessException(_exceptionLocalizer[e.Message]);
+        }
     }
     public async Task<Url> CreatePremium(string originalUrl, string shortenedUrl, DateTime expireDate)
     {
         if (await _urlRepository.AnyAsync(item => item.ShortenedUrl == shortenedUrl))
         {
-            throw new BusinessException("Shortened Url already exists");
+            throw new BusinessException(_exceptionLocalizer["Exception:ShortenedUrlAlreadyExists"]);
         }
-        var url = Create(originalUrl, shortenedUrl, expireDate);
-        return url;
+
+        try
+        {
+            var url = Create(originalUrl, shortenedUrl, expireDate);
+            return url;
+        }
+        catch(Exception e)
+        {
+            throw new BusinessException(_exceptionLocalizer[e.Message]);
+        }
     }
     
     //private Methods
