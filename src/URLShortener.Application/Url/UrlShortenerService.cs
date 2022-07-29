@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using MongoDB.Bson.Serialization.IdGenerators;
+using URLShortener.Localization;
 using URLShortener.Permissions;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
@@ -22,11 +24,16 @@ public class UrlShortenerService : URLShortenerAppService, IUrlShortenerService
     private readonly IRepository<Url, Guid> _urlRepository;
     private readonly UrlManager _urlManager;
     private readonly IConfiguration _configuration;
-    public UrlShortenerService(IRepository<Url, Guid> urlRepository, UrlManager urlManager, IConfiguration configuration)
+    private readonly IStringLocalizer<ExceptionResource> _exceptionLocalizer;
+    public UrlShortenerService(IRepository<Url, Guid> urlRepository, 
+        UrlManager urlManager, 
+        IConfiguration configuration, 
+        IStringLocalizer<ExceptionResource> exceptionLocalizer)
     {
         _urlRepository = urlRepository;
         _urlManager = urlManager;
         _configuration = configuration;
+        _exceptionLocalizer = exceptionLocalizer;
     }
     
     public async Task<CreateUrlDto> CreateAsync(string originalUrl)
@@ -45,7 +52,7 @@ public class UrlShortenerService : URLShortenerAppService, IUrlShortenerService
        
        if (url == null)
        {
-           throw new BusinessException("Url not found");
+           throw new BusinessException(_exceptionLocalizer["Exception:UrlNotFound"]);
        }
        
        return ObjectMapper.Map<Url, GetUrlDto>(url);
