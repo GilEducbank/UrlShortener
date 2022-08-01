@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Bson.Serialization.IdGenerators;
+using Newtonsoft.Json;
 using Shouldly;
 using Volo.Abp;
 using Xunit;
@@ -23,10 +24,13 @@ public sealed class UrlShortenerServiceTests : URLShortenerApplicationTestBase
     [Fact]
     public async Task ShouldNotBeEmptyUrl()
     {
-        var result = await _urlShortenerService.CreateAsync(randomUrl);
-
-        result.OriginalUrl.ShouldNotBeNullOrEmpty();
-        result.ShortenedUrl.Length.ShouldBeInRange(1, 10);
+        var url = await _urlShortenerService.CreateAsync(randomUrl);//insert database
+        var url2 = await _urlShortenerService.CreateAsync(randomUrl);//get from cache
+        
+        url.OriginalUrl.ShouldNotBeNullOrEmpty();
+        (url.ShortenedUrl.Length - (_configuration["App:SelfUrl"] +"/").Length).ShouldBeInRange(1, 10);
+        
+        JsonConvert.SerializeObject(url).ShouldBe(JsonConvert.SerializeObject(url2));
     }
     
     [Fact]
